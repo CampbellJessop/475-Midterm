@@ -6,7 +6,7 @@ library(shiny)
 library(ggplot2)
 library(ggeasy)
 library(plotly)
-shinyWidgetsGallery()
+#shinyWidgetsGallery()
 
 
 ARRIVE <- aus_arrivals
@@ -50,7 +50,7 @@ body <- dashboardBody(
                           h4("This sub menu allows the users to navigate through two seperate tab boxes. The top box has four different tabs displaying the full series, arrivals from Japan, arrivals from New Zealand, arrivals from the United Kingdom, and arrivals from the United States. The box below the graph tab box has four different tabs displaying the summary text output for the full series, Japan, New Zealand, United Kingdom, and the United States."),
                           hr(),
                           h4(strong("User Selection Sub Menu:"),align="center"),
-                          h4("The user selection menu allows users to interact with two inputs to display both the origin and graph of their choosing. Users have the option to select from any of the four origins (Japan, New Zealand, United Kingdom, and the United States). Also, the user can select any of the six different options of graphs to be displayed for their specified origin. Once the origin and specific time series graph have been selected, the graph will populate above along with an interpretation to help the user understand noteworthy aspects."
+                          h4("The user selection menu allows users to interact with three inputs to display the origin, graph, and date range of their choosing. Users have the option to select from any of the four origins (Japan, New Zealand, United Kingdom, and the United States). Also, the user can select any of the six different options of graphs to be displayed for their specified origin. The date range selection box is also available if the user would like to specify a particular date range when viewing the regular time series graphs. Once the origin, specific time series graph, and date range have been selected, the graph will populate above along with an interpretation to help the user understand noteworthy aspects."
                              )),
                  tabPanel("Features", 
                           h4(strong("Time Series Sub Menu:"),align="center"),
@@ -63,19 +63,21 @@ body <- dashboardBody(
                           br(),
                           h4(strong("Graph Selection Box:"),"The origin selection box lets the user choose which origin they would like to analyze."),
                           br(),
+                          h4(strong("Date Range Selection Box:"),em("(Additional Feature) "),"The date range selection box lets the user specify which specific date range they would like to analyze when viewing a regular time series graph."),
+                          br(),
                           h4(strong("Regular Time Series Selection:"),"This selection will display the full time series for the user's specified origin."),
                           br(),
                           h4(strong("Seasonality Selection:"),"This selection will display a seasonality graph over the four quarters for the user's specified origin."),
                           br(),
-                          h4(strong("Autocorrelation Selection:"),"This selection will display an ACF bar chart for the user's specified origin. This bar chart shows how the present value of a given time series is correlated with the past"),
+                          h4(strong("Autocorrelation Selection:"),"This selection will display an ACF bar chart for the user's specified origin. This bar chart shows how the present value of a given time series is correlated with the past."),
                           br(),
                           h4(strong("Differenced Autocorrelation Selection:"),em("(Additional Feature) "),"This selection will display a differenced ACF bar chart for the user's specified origin. This is different from the autocorrelation selection since the data is now de-trended."),
                           br(),
-                          h4(strong("Additive Decomposition Selection"),"This selection will display an additive decomposition graph for the user's selected origin."),
+                          h4(strong("Additive Decomposition Selection:"),"This selection will display an additive decomposition graph for the user's selected origin."),
                           br(),
-                          h4(strong("Multiplicative Decomposition Selection"),em("(Additional Feature) "),"This selection will display an multiplicative decomposition graph for the user's selected origin."),
+                          h4(strong("Multiplicative Decomposition Selection:"),em("(Additional Feature) "),"This selection will display an multiplicative decomposition graph for the user's selected origin."),
                           br(),
-                          h4(strong("Interpretation Summary Box"),"This text output box will display an interpretation for each respective graph after the user has specified the origin and graph type.")
+                          h4(strong("Interpretation Summary Box:"),"This text output box will display an interpretation for each respective graph after the user has specified the origin and graph type.")
                           )
                )
     ),
@@ -294,6 +296,8 @@ server <- function(input, output){
     selectedOrigin <- input$originchoice
     ARRIVE %>%
       filter(Origin %in% selectedOrigin) %>% 
+      filter(Quarter >= yearquarter(as.character(input$Id096[1]))) %>% 
+      filter(Quarter <= yearquarter(as.character(input$Id096[2]))) %>% 
       ggplot(aes(Quarter,Arrivals)) +
       geom_line(color="darkgreen") +
       labs(title="Regular Time Series Plot of Arrivals",
